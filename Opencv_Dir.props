@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <OPENCV_DIR>D:\setup\opencv\3.1\install\</OPENCV_DIR>
+	<OPENCV_INCLUDE_DIR>$(OPENCV_DIR)/include</OPENCV_INCLUDE_DIR>
+	<OPENCV_LIB_DIR>$(OPENCV_DIR)\$(PlatformShortName)\$(PlatformToolset)\lib\</OPENCV_LIB_DIR>
+	<!--IsDebug: search for 'Debug' in Configuration-->
+    <IsDebug>$([System.Convert]::ToString( $([System.Text.RegularExpressions.Regex]::IsMatch($(Configuration), '[Dd]ebug'))))</IsDebug>
+
+  </PropertyGroup>
+  <PropertyGroup />
+  <Choose>
+    <When Condition="$([System.Convert]::ToBoolean($(IsDebug)))">
+      <!-- debug macroses -->
+      <PropertyGroup Label="UserMacros">
+        <OpenCVLib>
+
+
+
+opencv_calib3d310d.lib;
+opencv_ccalib310d.lib;
+opencv_core310d.lib;
+opencv_datasets310d.lib;
+opencv_dnn310d.lib;
+opencv_dpm310d.lib;
+opencv_face310d.lib;
+opencv_features2d310d.lib;
+opencv_flann310d.lib;
+opencv_fuzzy310d.lib;
+opencv_highgui310d.lib;
+opencv_imgcodecs310d.lib;
+opencv_imgproc310d.lib;
+opencv_line_descriptor310d.lib;
+opencv_ml310d.lib;
+opencv_objdetect310d.lib;
+opencv_optflow310d.lib;
+opencv_photo310d.lib;
+opencv_plot310d.lib;
+opencv_reg310d.lib;
+opencv_rgbd310d.lib;
+opencv_saliency310d.lib;
+opencv_shape310d.lib;
+opencv_stereo310d.lib;
+opencv_stitching310d.lib;
+opencv_structured_light310d.lib;
+opencv_superres310d.lib;
+opencv_surface_matching310d.lib;
+opencv_text310d.lib;
+opencv_tracking310d.lib;
+
+opencv_video310d.lib;
+opencv_videoio310d.lib;
+opencv_videostab310d.lib;
+opencv_xfeatures2d310d.lib;
+opencv_ximgproc310d.lib;
+opencv_xobjdetect310d.lib;
+opencv_xphoto310d.lib;
+		</OpenCVLib>        
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <!-- other/release macroses -->
+      <PropertyGroup Label="UserMacros">
+        <OpenCVLib>
+
+
+
+opencv_calib3d310.lib;
+opencv_ccalib310.lib;
+opencv_core310.lib;
+opencv_datasets310.lib;
+opencv_dnn310.lib;
+opencv_dpm310.lib;
+opencv_face310.lib;
+opencv_features2d310.lib;
+opencv_flann310.lib;
+opencv_fuzzy310.lib;
+opencv_highgui310.lib;
+opencv_imgcodecs310.lib;
+opencv_imgproc310.lib;
+opencv_line_descriptor310.lib;
+opencv_ml310.lib;
+opencv_objdetect310.lib;
+opencv_optflow310.lib;
+opencv_photo310.lib;
+opencv_plot310.lib;
+opencv_reg310.lib;
+opencv_rgbd310.lib;
+opencv_saliency310.lib;
+opencv_shape310.lib;
+opencv_stereo310.lib;
+opencv_stitching310.lib;
+opencv_structured_light310.lib;
+opencv_superres310.lib;
+opencv_surface_matching310.lib;
+opencv_text310.lib;
+opencv_tracking310.lib;
+
+opencv_video310.lib;
+opencv_videoio310.lib;
+opencv_videostab310.lib;
+opencv_xfeatures2d310.lib;
+opencv_ximgproc310.lib;
+opencv_xobjdetect310.lib;
+opencv_xphoto310.lib;</OpenCVLib>        
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(OPENCV_INCLUDE_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(OPENCV_LIB_DIR);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+	  <AdditionalDependencies>$(OpenCVLib);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="OPENCV_DIR">
+      <Value>$(OPENCV_DIR)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
