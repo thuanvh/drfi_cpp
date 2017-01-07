@@ -186,8 +186,9 @@ void SalDRFI::load(CStr dataFile)
 	RegionFeature::setFilter(_mlFilters15d);
 }
 
+long size_count = 0;
 // Write matrix to binary file
-bool matWrite(FILE *f, CMat& _M)
+bool matWrite(FILE *f, CMat& _M, bool show = true)
 {
 	Mat M;
 	_M.copyTo(M);
@@ -196,7 +197,24 @@ bool matWrite(FILE *f, CMat& _M)
 	fwrite("CmMat", sizeof(char), 5, f);
 	int headData[3] = {M.cols, M.rows, M.type()};
 	fwrite(headData, sizeof(int), 3, f);
-	fwrite(M.data, sizeof(char), M.step * M.rows, f);
+	fwrite(M.data, sizeof(char), M.step * M.rows, f);  
+  if (show) {
+    size_count += M.step*M.rows;
+    std::cout << "Write: " << M.step << "*" << M.rows
+      << "=" << M.step*M.rows
+      << " size " << size_count << std::endl;
+    if(_M.channels() == 1)
+      std::cout << "Nonzero:" << countNonZero(_M) << endl;
+    double maxval, minval;
+    minMaxIdx(_M, &minval, &maxval);
+    ///*if (isinf(maxval))
+    //{
+    //  std::cout << "check inf" << endl;
+    //  if(M.data)
+    //  for()
+    //}*/
+    std::cout << "min:" << minval << " max:" << maxval << endl;
+  }
 	return true;
 }
 
@@ -226,6 +244,109 @@ void SalDRFI::save(CStr dataFile)
 	matWrite(f, _mlFilters15d);
 	matWrite(f, Mat(_ndTree));
 	fclose(f);
+}
+
+void writeyml(const string& filename, Mat& mat) {
+  FileStorage fs(filename, FileStorage::WRITE);
+  fs << "R" << mat;
+  fs.release();// explicit close
+}
+
+void analyzeMat(Mat& mat) {
+  cout << "Analyze mat:" << endl;
+  double minval, maxval;
+  minMaxIdx(mat, &minval, &maxval);
+  Mat hist;
+  int histSize = (maxval - minval) + 1;// 256;
+  float range[] = { 0, histSize };
+  const float* histRange = { range };
+  calcHist(&mat, 1, 0, Mat(), hist, 1, &histSize, &histRange);
+  cout << "Nonzero:" << countNonZero(hist) << endl;
+  double maxhist;
+  minMaxIdx(hist, 0, &maxhist);
+  cout << "Max hist:" << maxhist << endl;
+  writeyml("hist_.yaml", hist);
+}
+void SalDRFI::loadfloat(CStr dataFile)
+{
+  FILE *f = fopen(_S(dataFile), "rb");
+  CV_Assert_(f != NULL, ("Can't open file %s\n", _S(dataFile)));
+  char buf[100];
+  int pre = (int)fread(buf, sizeof(char), SZ_MARKER, f);
+  if (strncmp(buf, MARKER, SZ_MARKER) != 0) {
+    printf("Invalidate DrfiData file at %d:%s\n", __LINE__, __FILE__);
+    return;
+  }
+  const int numSzData = 3;
+  int szData[3];
+  fread(szData, sizeof(int), numSzData, f);
+  _N = szData[0], _NumN = szData[1], _NumT = szData[2];
+  Mat w, ndTree;
+  matRead(f, w);
+  matRead(f, _segPara1d);
+  Mat l16, r16, m16;
+  //matRead(f, _lDau1i);
+  //matRead(f, _rDau1i);
+  //matRead(f, _mBest1i);
+  matRead(f, l16); l16.convertTo(_lDau1i, CV_32S);
+  matRead(f, r16); r16.convertTo(_rDau1i, CV_32S);
+  matRead(f, m16); m16.convertTo(_mBest1i, CV_32S);
+  matRead(f, _nodeStatus1c);
+  Mat uf, af, mf;
+  /*matRead(f, _upper1d);
+  matRead(f, _avNode1d);
+  matRead(f, _mlFilters15d);*/
+  matRead(f, uf); uf.convertTo(_upper1d, CV_64F);
+  matRead(f, af); af.convertTo(_avNode1d, CV_64F, 1.0/65535);
+  matRead(f, mf); mf.convertTo(_mlFilters15d, CV_64F);
+  matRead(f, ndTree);
+  _w = w;
+  _ndTree = ndTree;
+  fclose(f);
+  _dataLoaded = true;
+
+  RegionFeature::setFilter(_mlFilters15d);
+}
+
+void SalDRFI::savefloat(CStr dataFile)
+{
+  FILE *f = fopen(_S(dataFile), "wb");
+  CV_Assert_(f != NULL, ("Can't open file %s\n", _S(dataFile)));
+  fwrite(MARKER, sizeof(char), SZ_MARKER, f);
+  int szData[] = { _N, _NumN, _NumT };
+  fwrite(szData, sizeof(int), sizeof(szData) / sizeof(int), f);
+  matWrite(f, Mat(_w));
+  matWrite(f, _segPara1d);
+  writeyml("yml_lDau1i.yml", _lDau1i);
+  writeyml("yml_rDau1i.yml", _rDau1i);
+  Mat l16, r16, m16;
+  _lDau1i.convertTo(l16, CV_16U);
+  _rDau1i.convertTo(r16, CV_16U);
+  _mBest1i.convertTo(m16, CV_8U);
+  cout << "l16 " << endl; 
+  analyzeMat(l16);
+  matWrite(f, l16);// _lDau1i);
+  cout << "r16 " << endl; 
+  analyzeMat(r16);
+  matWrite(f, r16);// _rDau1i);
+  cout << "m16 " << endl; matWrite(f, m16);// _mBest1i);
+  cout << "_nodeStatus1c " << endl; matWrite(f, _nodeStatus1c);
+  
+  /*matWrite(f, _upper1d);
+  matWrite(f, _avNode1d);
+  matWrite(f, _mlFilters15d);*/
+  writeyml("yml_upper1d.yml", _upper1d);
+  writeyml("yml_avNode1d.yml", _avNode1d);
+
+  Mat uf, af, mf;
+  _upper1d.convertTo(uf, CV_32F);
+  _avNode1d.convertTo(af, CV_16U, 65535);
+  _mlFilters15d.convertTo(mf, CV_32F);
+  cout << "uf" << endl; matWrite(f, uf);
+  cout << "af" << endl; matWrite(f, af);
+  cout << "mf" << endl; matWrite(f, mf);
+  matWrite(f, Mat(_ndTree));
+  fclose(f);
 }
 
 // #define _USE_MATLAB

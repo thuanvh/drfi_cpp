@@ -18,6 +18,8 @@ public:
 
 public: // Helper functions
 	void save(CStr dataFile = "Model.data");
+  void loadfloat(CStr dataFile);
+  void savefloat(CStr dataFile = "Model.data");
 	static void MatlabDat2DataFile(CStr matlabData = "Model.mat", CStr dataFile = "Model.data");
 
 private:

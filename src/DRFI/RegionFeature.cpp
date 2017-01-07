@@ -13,13 +13,13 @@ void RegionFeature::setFilter(CMat &mlFilters15d)
 	CV_Assert(DIM_TEX == mlFilters1d.size());
 }
 
-void cvtColorBgr3f2Gray1u1d(CMat &img3u, Mat &gray1d, Mat &gray1u, double scale = 1.0/255)
+void cvtColorBgr3f2Gray1u1d(CMat &img3u, Mat &gray1d, Mat &gray1u, DType scale = 1.0/255)
 {
 	CV_Assert(img3u.isContinuous());
 	int N = img3u.cols * img3u.rows;
 	const Vec3b* img = (Vec3b*)img3u.data;
 	gray1d.create(img3u.size(), CV_64F), gray1u.create(img3u.size(), CV_8U);
-	double *grayPd = (double*)gray1d.data;
+  DType *grayPd = (DType*)gray1d.data;
 	byte* grayPu = (byte*)gray1u.data;
 	for (int i = 0; i < N; i++){
 		grayPu[i] = (img[i][0] + img[i][1] + img[i][2] + 1)/3;
@@ -39,13 +39,13 @@ void filter2D(CMat &src1d, Mat &dst1d, CMat &kernel1d)
 	dst1d = Mat::zeros(H, W, CV_64F);
 	int WM1 = W - 1, HM1 = H - 1;
 	for (int r = 0; r < H; r++) {
-		double* dst = dst1d.ptr<double>(r);
+    DType* dst = dst1d.ptr<DType>(r);
 		for (int c = 0; c < W; c++){
-			Point pnt(c, r); double s = 0;
+			Point pnt(c, r); DType s = 0;
 			for (int k = 0; k < kNum; k++){
 				Point p = pnt + dPnts[k];
 				p.x = CLAMP(p.x, 0, WM1), p.y = CLAMP(p.y, 0, HM1);
-				s += kernel1d.at<double>(kPnts[k]) * src1d.at<double>(p);
+				s += kernel1d.at<DType>(kPnts[k]) * src1d.at<DType>(p);
 			}
 			dst[c] = s;
 		}
@@ -91,7 +91,7 @@ void RegionFeature::setImg(CMat &img3u, CMat &img3f)
 	const int *qRgb = (int*)l_qRgbIm1i.data, *qLab = (int*)l_qLabIm1i.data, *qHsv = (int*)l_qHsvIm1i.data;
 	const int *qLbp = (int*)l_qLbpIm1i.data;
 	int *qTex = (int*)l_qTextIm1i.data;	
-	double *textMax = (double*)l_texMax1d.data;
+  DType *textMax = (DType*)l_texMax1d.data;
 #pragma omp parallel for
 	for (int i = 0; i < _N; i++){
 		_imTex15d[i][0] = textMax[i];

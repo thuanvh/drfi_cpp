@@ -1,5 +1,5 @@
 #pragma once
-
+#define DType double
 class RegionFeature
 {
 private: 

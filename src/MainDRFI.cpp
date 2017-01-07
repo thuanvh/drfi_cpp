@@ -15,11 +15,16 @@
 
 void processImg(CStr &imgPath);
 void processDataset(int argc, char* argv[]);
+int unzipfile(const std::string& file_name, const std::string& output_name);
 
 // C:/WkDir/Saliency/FT1000/Imgs/*.jpg  DrfiModel.data  C:/WkDir/Saliency/FT1000/SalMaps/  C:/WkDir/Saliency/FT1000/Imgs/*.png
 int main(int argc, char* argv[])
 {
-	processImg("0_0_272.png");
+  if (argc > 1) {
+    processImg(argv[1]);
+  }else
+    processImg("0_0_272.png");
+
 	// processDataset(argc, argv);
 	return 0;
 }
@@ -30,7 +35,12 @@ void processImg(CStr &imgPath)
 { 
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	SalDRFI drfi;
-	drfi.load( "drfiModelCpp.data" );		// http://jianghz.com/drfi/drfiModelCpp.data
+  unzipfile("save.data.gz", "save_unzipped.data");
+	//drfi.load( "drfiModelCpp.data" );		// http://jianghz.com/drfi/drfiModelCpp.data
+  //drfi.load("model.data");
+  //drfi.loadfloat("save.data");
+  drfi.loadfloat("save_unzipped.data");
+  //drfi.savefloat("save2.data");
 
 	Mat img3u = imread(imgPath);
 	Mat sal1f;

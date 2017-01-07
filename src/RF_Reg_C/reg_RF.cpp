@@ -90,7 +90,7 @@ double unif_rand(){
     //mexPrintf("%f, RAND_MAX %d\n", value, RAND_MAX);
     //return value;
 	//return ((double)rand())/RAND_MAX;
-    return (((double)randomMT())/((double)MAX_UINT_COKUS));
+    return (((DType)randomMT())/((DType)MAX_UINT_COKUS));
 }
 void zeroSMALLInt(void *x, int length) {
     memset(x, 0, length * sizeof(SMALL_INT));
@@ -99,8 +99,8 @@ void zeroInt(int *x, int length) {
     memset(x, 0, length * sizeof(int));
 }
 
-void zeroDouble(double *x, int length) {
-    memset(x, 0, length * sizeof(double));
+void zeroDouble(DType *x, int length) {
+    memset(x, 0, length * sizeof(DType));
 }
 
 int imax2(int x, int y) {
@@ -123,7 +123,7 @@ void unpack(unsigned int pack, int *bits) {
 }
 
 /* Compute proximity. */
-void computeProximity(double *prox, int oobprox, int *node, int *inbag,
+void computeProximity(DType *prox, int oobprox, int *node, int *inbag,
         int *oobpair, int n) {
     /* Accumulate the number of times a pair of points fall in the same node.
    prox:    n x n proximity matrix

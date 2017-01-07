@@ -48,6 +48,9 @@
     <ClCompile Include="src\MainDRFI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="readmatgz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CmLib\CmDefinition.h">
