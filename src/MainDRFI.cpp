@@ -35,11 +35,12 @@ void processImg(CStr &imgPath)
 { 
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	SalDRFI drfi;
-  unzipfile("save.data.gz", "save_unzipped.data");
+  //unzipfile("save.data.gz", "save_unzipped.data");
 	//drfi.load( "drfiModelCpp.data" );		// http://jianghz.com/drfi/drfiModelCpp.data
   //drfi.load("model.data");
   //drfi.loadfloat("save.data");
-  drfi.loadfloat("save_unzipped.data");
+  drfi.loadfloatgz("save.data.gz");
+  //drfi.loadfloat("save_unzipped.data");
   //drfi.savefloat("save2.data");
 
 	Mat img3u = imread(imgPath);

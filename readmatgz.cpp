@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <zlib.h>
 #include <assert.h>
+#include "readmatgz.h"
+using namespace std;
 
 /* CHUNK is the size of the memory chunk used by the zlib routines. */
 
@@ -385,3 +387,100 @@ int unzipfile2(const std::string& file_name, const std::string& output_name)
 //    return 1;
 //  }
 //}
+
+GzFileReader::GzFileReader() {
+  in = new unsigned char[CHUNK];
+  out = new unsigned char[CHUNK];
+}
+GzFileReader::~GzFileReader() {
+  delete[] in;
+  delete[] out;
+  /* clean up and return */
+  (void)inflateEnd(&strm);
+}
+int GzFileReader::open(const string& file) {
+  int ret;
+  source = fopen(file.c_str(), "rb");
+
+  /* allocate inflate state */
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  strm.avail_in = 0;
+  strm.next_in = Z_NULL;
+  strm.avail_out = CHUNK;
+  //ret = inflateInit(&strm);
+  ret = inflateInit2(&strm, 32 + MAX_WBITS);
+  out_idx = 0;
+  if (ret != Z_OK)
+    return ret;
+  return ret;
+}
+
+int GzFileReader::read(void*  _Buffer, size_t _ElementSize, size_t _ElementCount)
+{
+  int ret = 0;
+  
+  bool success = true;
+  
+  /* decompress until deflate stream ends or end of file */
+
+
+  size_t target_size = _ElementSize * _ElementCount;
+  /* run inflate() on input until output buffer not full */
+  size_t copied_size = 0;
+  do {
+    if (out_idx == 0) {
+      if (strm.avail_out != 0) {
+        strm.avail_in = fread(in, 1, CHUNK, source);
+        if (ferror(source)) {
+          (void)inflateEnd(&strm);
+          return Z_ERRNO;
+        }
+        if (strm.avail_in == 0)
+          success = false;
+        if (success)
+          strm.next_in = in;
+      }
+      if (success) {
+        //strm.next_in = in;
+
+        strm.avail_out = CHUNK;
+        strm.next_out = out;
+        ret = inflate(&strm, Z_NO_FLUSH);
+        assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+        switch (ret) {
+        case Z_NEED_DICT:
+          ret = Z_DATA_ERROR;     /* and fall through */
+        case Z_DATA_ERROR:
+        case Z_MEM_ERROR:
+          (void)inflateEnd(&strm);
+          return ret;
+        }
+        have = CHUNK - strm.avail_out;
+      }
+      /*if (fwrite(out, 1, have, dest) != have || ferror(dest)) {
+        (void)inflateEnd(&strm);
+        return Z_ERRNO;
+      }*/
+    }
+    else {
+      //have = have - out_idx;
+    }
+    if (copied_size + have - out_idx <= target_size)
+    {
+      memcpy((unsigned char*)_Buffer + copied_size, out + out_idx, have - out_idx);
+      copied_size += have - out_idx;
+      out_idx = 0;
+    }
+    else {
+      int dbuf = target_size - copied_size;
+      memcpy((unsigned char*)_Buffer + copied_size, out + out_idx, dbuf);
+      copied_size += dbuf;
+      out_idx += dbuf;
+    }
+  } while (copied_size < target_size);
+
+
+  return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+}

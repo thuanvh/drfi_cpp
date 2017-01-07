@@ -83,5 +83,8 @@
     <ClInclude Include="src\DRFI\SalDRFI.h">
       <Filter>SaliencyDRFI</Filter>
     </ClInclude>
+    <ClInclude Include="readmatgz.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

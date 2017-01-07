@@ -1,7 +1,7 @@
 //#include "stdafx.h"
 #include "SalDRFI.h"
 #include "reg_RF.h"
-
+#include "readmatgz.h"
 Mat SalDRFI::getSalMap(CMat &_img3u)
 {
 	Mat img3f, imgBlur3f, img3u;
@@ -267,6 +267,65 @@ void analyzeMat(Mat& mat) {
   cout << "Max hist:" << maxhist << endl;
   writeyml("hist_.yaml", hist);
 }
+
+bool matReadgz(GzFileReader& gz, Mat& M)
+{
+  char buf[8];
+  int pre = (int)gz.read(buf, sizeof(char), 5);
+  if (strncmp(buf, "CmMat", 5) != 0) {
+    printf("Invalidate CvMat data file: %d:%s\n", __LINE__, __FILE__);
+    return false;
+  }
+  int headData[3]; // Width, height, type
+  gz.read(headData, sizeof(int), 3);
+  M = Mat(headData[1], headData[0], headData[2]);
+  gz.read(M.data, sizeof(char), M.step * M.rows);
+  return true;
+}
+
+void SalDRFI::loadfloatgz(CStr dataFile)
+{
+  GzFileReader gz;
+  gz.open(dataFile);
+  //FILE *f = fopen(_S(dataFile), "rb");
+  //CV_Assert_(f != NULL, ("Can't open file %s\n", _S(dataFile)));
+  char buf[100];
+  int pre = (int)gz.read(buf, sizeof(char), SZ_MARKER);
+  if (strncmp(buf, MARKER, SZ_MARKER) != 0) {
+    printf("Invalidate DrfiData file at %d:%s\n", __LINE__, __FILE__);
+    return;
+  }
+  const int numSzData = 3;
+  int szData[3];
+  gz.read(szData, sizeof(int), numSzData);
+  _N = szData[0], _NumN = szData[1], _NumT = szData[2];
+  Mat w, ndTree;
+  matReadgz(gz, w);
+  matReadgz(gz, _segPara1d);
+  Mat l16, r16, m16;
+  //matRead(f, _lDau1i);
+  //matRead(f, _rDau1i);
+  //matRead(f, _mBest1i);
+  matReadgz(gz, l16); l16.convertTo(_lDau1i, CV_32S);
+  matReadgz(gz, r16); r16.convertTo(_rDau1i, CV_32S);
+  matReadgz(gz, m16); m16.convertTo(_mBest1i, CV_32S);
+  matReadgz(gz, _nodeStatus1c);
+  Mat uf, af, mf;
+  /*matRead(f, _upper1d);
+  matRead(f, _avNode1d);
+  matRead(f, _mlFilters15d);*/
+  matReadgz(gz, uf); uf.convertTo(_upper1d, CV_64F);
+  matReadgz(gz, af); af.convertTo(_avNode1d, CV_64F, 1.0 / 65535);
+  matReadgz(gz, mf); mf.convertTo(_mlFilters15d, CV_64F);
+  matReadgz(gz, ndTree);
+  _w = w;
+  _ndTree = ndTree;
+  //fclose(f);
+  _dataLoaded = true;
+
+  RegionFeature::setFilter(_mlFilters15d);
+}
+
 void SalDRFI::loadfloat(CStr dataFile)
 {
   FILE *f = fopen(_S(dataFile), "rb");

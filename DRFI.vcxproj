@@ -91,7 +91,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\src\CmLib;$(ProjectDir)\src\DRFI;$(ProjectDir)\src\RF_Reg_C;$(SolutionDir)\zlib\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\CmLib;$(ProjectDir)\src\DRFI;$(ProjectDir)\src\RF_Reg_C;$(SolutionDir)\zlib\install\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\src\CmLib;$(ProjectDir)\src\DRFI;$(ProjectDir)\src\RF_Reg_C;$(SolutionDir)\zlib\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src\CmLib;$(ProjectDir)\src\DRFI;$(ProjectDir)\src\RF_Reg_C;$(SolutionDir)\zlib\install\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -168,6 +168,7 @@
     <ClCompile Include="src\RF_Reg_C\reg_RF.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="readmatgz.h" />
     <ClInclude Include="src\CmLib\CmDefinition.h" />
     <ClInclude Include="src\CmLib\EfficientGraphBased\disjoint-set.h" />
     <ClInclude Include="src\CmLib\EfficientGraphBased\filter.h" />
