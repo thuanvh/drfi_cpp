@@ -46,7 +46,7 @@ void processImg(CStr &imgPath)
   cout << "Loading model time: " << time << endl;
 
   //drfi.loadfloat("save_unzipped.data");
-  //drfi.savefloat("save2.data");
+  //drfi.savefloat("save.data");
 
 	Mat img3u = imread(imgPath);
 	Mat sal1f;
