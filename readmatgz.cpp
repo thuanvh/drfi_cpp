@@ -9,6 +9,7 @@
 #include <zlib.h>
 #include <assert.h>
 #include "readmatgz.h"
+#include <iostream>
 using namespace std;
 
 /* CHUNK is the size of the memory chunk used by the zlib routines. */
@@ -401,6 +402,11 @@ GzFileReader::~GzFileReader() {
 int GzFileReader::open(const string& file) {
   int ret;
   source = fopen(file.c_str(), "rb");
+  if (source == NULL)
+  {
+    std::cout << "Could not open " << file << std::endl;
+    return -1;
+  }
 
   /* allocate inflate state */
   strm.zalloc = Z_NULL;

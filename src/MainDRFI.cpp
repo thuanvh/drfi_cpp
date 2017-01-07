@@ -39,7 +39,12 @@ void processImg(CStr &imgPath)
 	//drfi.load( "drfiModelCpp.data" );		// http://jianghz.com/drfi/drfiModelCpp.data
   //drfi.load("model.data");
   //drfi.loadfloat("save.data");
+  int64 e1 = getTickCount();
   drfi.loadfloatgz("save.data.gz");
+  int64 e2 = getTickCount();
+  double time = (e2 - e1) / getTickFrequency();
+  cout << "Loading model time: " << time << endl;
+
   //drfi.loadfloat("save_unzipped.data");
   //drfi.savefloat("save2.data");
 

@@ -2,7 +2,7 @@
 
 SalDRFI drfi_instance;
 void drfiinit(CStr & data) {
-  drfi_instance.load(data);
+  drfi_instance.loadfloatgz(data);
 }
 Mat drfiprocessImg(Mat& img) {
   Mat sal1f = drfi_instance.getSalMap(img);
